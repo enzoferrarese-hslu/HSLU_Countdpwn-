@@ -169,8 +169,14 @@ def init_db():
 
 
 def save_to_db(semester):
-    conn = sqlite3.connect(DB_NAME)
+    import sqlite3
+    from datetime import datetime, timezone
+
+    conn = sqlite3.connect("semester_dates.db")
     cursor = conn.cursor()
+
+    # ALLES LÖSCHEN (wichtig!)
+    cursor.execute("DELETE FROM semester_dates")
 
     scraped_at = datetime.now(timezone.utc).isoformat()
 
@@ -185,13 +191,6 @@ def save_to_db(semester):
             scraped_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(semester_name) DO UPDATE SET
-            contact_start = excluded.contact_start,
-            contact_end = excluded.contact_end,
-            exam_start = excluded.exam_start,
-            exam_end = excluded.exam_end,
-            source_url = excluded.source_url,
-            scraped_at = excluded.scraped_at
     """, (
         semester["semester_name"],
         semester["contact_start"],
@@ -204,7 +203,6 @@ def save_to_db(semester):
 
     conn.commit()
     conn.close()
-
 
 def print_current_semester(semester):
     print("\nAKTUELLES SEMESTER:\n")

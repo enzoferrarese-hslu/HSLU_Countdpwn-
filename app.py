@@ -3,6 +3,8 @@ from countdown_service import get_countdown
 
 app = Flask(__name__)
 
+print("APP STARTET...")  # Debug
+
 
 @app.route("/")
 def home():
@@ -22,5 +24,6 @@ def api_countdown(mode):
         return jsonify({"error": str(e)}), 500
 
 
+# 🔥 GANZ WICHTIG (das hat bei dir gefehlt)
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester Countdown</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Semester Countdown</h1>
+
+        <p class="subtitle">Wähle aus, welcher Countdown angezeigt werden soll:</p>
+
+        <div class="button-group">
+            <button onclick="startCountdown('contact')">Ende Kontaktstudium</button>
+            <button onclick="startCountdown('exam')">Ende Prüfungsphase</button>
+        </div>
+
+        <div class="info-box">
+            <p id="semester-name">Noch keine Auswahl getroffen</p>
+            <p id="target-date"></p>
+        </div>
+
+        <div class="countdown-box">
+            <div id="countdown">---</div>
+            <div class="label">Sekunden verbleibend</div>
+        </div>
+
+        <div id="status-message"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

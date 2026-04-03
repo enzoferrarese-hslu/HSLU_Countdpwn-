@@ -1,15 +1,10 @@
 import sqlite3
 from datetime import datetime
 
-
 DB_NAME = "semester_dates.db"
 
 
 def get_current_semester():
-    """
-    Holt das aktuelle Semester aus der Datenbank.
-    Es wird davon ausgegangen, dass nur das aktuelle Semester in der DB gespeichert ist.
-    """
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -36,11 +31,6 @@ def get_current_semester():
 
 
 def get_target_date(mode):
-    """
-    mode:
-    - 'contact' -> contact_end
-    - 'exam'    -> exam_end
-    """
     semester = get_current_semester()
 
     if semester is None:
@@ -55,11 +45,6 @@ def get_target_date(mode):
 
 
 def calculate_countdown(target_date_str):
-    """
-    Berechnet die verbleibende Zeit bis zum Zieldatum.
-    Das Datum aus der DB ist im Format YYYY-MM-DD.
-    Wir setzen die Uhrzeit auf 23:59:59, damit der ganze Tag mitzählt.
-    """
     now = datetime.now()
 
     target_datetime = datetime.strptime(target_date_str, "%Y-%m-%d")
@@ -94,10 +79,6 @@ def calculate_countdown(target_date_str):
 
 
 def get_countdown(mode):
-    """
-    Hauptfunktion für die spätere Website.
-    Die Website kann später einfach 'contact' oder 'exam' übergeben.
-    """
     semester = get_current_semester()
 
     if semester is None:
@@ -112,37 +93,3 @@ def get_countdown(mode):
         "target_date": target_date,
         "countdown": countdown,
     }
-
-
-def print_countdown(mode):
-    """
-    Nur zum Testen im Terminal.
-    """
-    result = get_countdown(mode)
-
-    print(f"\nSemester: {result['semester_name']}")
-    print(f"Modus: {result['mode']}")
-    print(f"Zieldatum: {result['target_date']}")
-
-    if result["countdown"]["expired"]:
-        print("Der Countdown ist bereits abgelaufen.")
-    else:
-        print("Verbleibende Zeit:")
-        print(f"{result['countdown']['days']} Tage")
-        print(f"{result['countdown']['hours']} Stunden")
-        print(f"{result['countdown']['minutes']} Minuten")
-        print(f"{result['countdown']['seconds']} Sekunden")
-        print(f"Gesamtsekunden: {result['countdown']['total_seconds']}")
-
-
-if __name__ == "__main__":
-    # Zum Testen:
-    # 'contact' für contact_end
-    # 'exam' für exam_end
-
-    print("Countdown bis Ende Kontaktstudium:")
-    print_countdown("contact")
-
-    print("\nCountdown bis Ende Prüfungsphase:")
-    print_countdown("exam")
-    

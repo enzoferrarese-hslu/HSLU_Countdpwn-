@@ -12,17 +12,12 @@
             <a href="/" class="back-button">← Zurück</a>
         </div>
 
-        <div class="info-box">
-            <p id="semester-name">Lade Semester...</p>
-            <p id="target-date">Lade Ziel...</p>
-        </div>
+        <p id="target-date" class="target-line">Lade Ziel...</p>
 
-        <div class="countdown-box">
+        <div class="countdown-only-box">
             <div id="countdown">---</div>
-            <div class="label">Sekunden verbleibend</div>
+            <div class="label">Sekunden</div>
         </div>
-
-        <div id="status-message"></div>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

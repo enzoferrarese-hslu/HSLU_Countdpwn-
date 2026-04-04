@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, render_template
-from countdown_service import get_countdown
+from countdown_service import get_countdown, get_current_semester
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    semester = get_current_semester()
+    return render_template("index.html", semester=semester)
 
 
 @app.route("/countdown/<mode>")

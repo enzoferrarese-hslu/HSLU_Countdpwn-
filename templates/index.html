@@ -7,14 +7,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
+    <div class="container start-page">
         <h1>Semester Countdown</h1>
 
-        <p class="subtitle">Wähle aus, welcher Countdown angezeigt werden soll:</p>
+        <p class="semester-line">
+            Semester:
+            {% if semester %}
+                {{ semester.semester_name }}
+            {% else %}
+                Kein aktuelles Semester gefunden
+            {% endif %}
+        </p>
 
         <div class="button-group">
-            <a href="/countdown/contact" class="menu-button">Ende Kontaktstudium</a>
-            <a href="/countdown/exam" class="menu-button">Ende Prüfungsphase</a>
+            <a href="/countdown/contact" class="menu-button">Kontaktstudium</a>
+            <a href="/countdown/exam" class="menu-button">Prüfungsphase</a>
         </div>
     </div>
 </body>

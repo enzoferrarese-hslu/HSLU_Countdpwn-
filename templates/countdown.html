@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-mode="{{ mode }}">
+    <div class="container countdown-page">
+        <div class="top-bar">
+            <a href="/" class="back-button">← Zurück</a>
+        </div>
+
+        <div class="info-box">
+            <p id="semester-name">Lade Semester...</p>
+            <p id="target-date">Lade Ziel...</p>
+        </div>
+
+        <div class="countdown-box">
+            <div id="countdown">---</div>
+            <div class="label">Sekunden verbleibend</div>
+        </div>
+
+        <div id="status-message"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,6 +1,15 @@
 let countdownInterval = null;
 let currentSeconds = 0;
 
+document.addEventListener("DOMContentLoaded", () => {
+    const body = document.body;
+    const mode = body.dataset.mode;
+
+    if (mode) {
+        startCountdown(mode);
+    }
+});
+
 function startCountdown(mode) {
     fetch(`/api/countdown/${mode}`)
         .then(response => response.json())
@@ -10,7 +19,8 @@ function startCountdown(mode) {
                 return;
             }
 
-            document.getElementById("semester-name").textContent = `Semester: ${data.semester_name}`;
+            document.getElementById("semester-name").textContent =
+                `Semester: ${data.semester_name}`;
 
             if (mode === "contact") {
                 document.getElementById("target-date").textContent =
@@ -54,5 +64,6 @@ function startCountdown(mode) {
 }
 
 function updateCountdownDisplay() {
-    document.getElementById("countdown").textContent = currentSeconds.toLocaleString("de-CH");
+    document.getElementById("countdown").textContent =
+        currentSeconds.toLocaleString("de-CH");
 }

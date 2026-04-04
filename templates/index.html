@@ -13,23 +13,9 @@
         <p class="subtitle">Wähle aus, welcher Countdown angezeigt werden soll:</p>
 
         <div class="button-group">
-            <button onclick="startCountdown('contact')">Ende Kontaktstudium</button>
-            <button onclick="startCountdown('exam')">Ende Prüfungsphase</button>
+            <a href="/countdown/contact" class="menu-button">Ende Kontaktstudium</a>
+            <a href="/countdown/exam" class="menu-button">Ende Prüfungsphase</a>
         </div>
-
-        <div class="info-box">
-            <p id="semester-name">Noch keine Auswahl getroffen</p>
-            <p id="target-date"></p>
-        </div>
-
-        <div class="countdown-box">
-            <div id="countdown">---</div>
-            <div class="label">Sekunden verbleibend</div>
-        </div>
-
-        <div id="status-message"></div>
     </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

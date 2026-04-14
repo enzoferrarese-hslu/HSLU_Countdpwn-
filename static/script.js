@@ -6,24 +6,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const body = document.body;
     const mode = body.dataset.mode;
 
-    initSettings();
-
     if (mode) {
         startCountdown(mode);
     }
+
+    initSettings();
 });
 
 function initSettings() {
-    const savedTheme = localStorage.getItem("countdownTheme") || "green";
+    const savedTheme = getStoredValue("countdownTheme", "green");
     currentUnit = "seconds";
 
     applyTheme(savedTheme);
-    setActiveOption(".color-option", "theme", savedTheme);
     setCountdownUnit(currentUnit);
 
-    document.getElementById("settings-toggle").addEventListener("click", openSettings);
-    document.getElementById("settings-close").addEventListener("click", closeSettings);
-    document.getElementById("coming-soon-close").addEventListener("click", closeComingSoon);
+    const settingsToggle = document.getElementById("settings-toggle");
+    const settingsClose = document.getElementById("settings-close");
+    const comingSoonClose = document.getElementById("coming-soon-close");
+
+    if (settingsToggle) {
+        settingsToggle.addEventListener("click", openSettings);
+    }
+
+    if (settingsClose) {
+        settingsClose.addEventListener("click", closeSettings);
+    }
+
+    if (comingSoonClose) {
+        comingSoonClose.addEventListener("click", closeComingSoon);
+    }
 
     document.querySelectorAll(".campus-option").forEach(button => {
         button.addEventListener("click", () => showComingSoon(button.dataset.campus));
@@ -38,7 +49,7 @@ function initSettings() {
     document.querySelectorAll(".color-option").forEach(button => {
         button.addEventListener("click", () => {
             applyTheme(button.dataset.theme);
-            localStorage.setItem("countdownTheme", button.dataset.theme);
+            setStoredValue("countdownTheme", button.dataset.theme);
         });
     });
 
@@ -52,7 +63,13 @@ function initSettings() {
 
 function startCountdown(mode) {
     fetch(`/api/countdown/${mode}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Countdown API nicht erreichbar.");
+            }
+
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
                 document.getElementById("target-date").textContent = data.error;
@@ -105,8 +122,16 @@ function startCountdown(mode) {
 
 function updateCountdownDisplay() {
     const display = getDisplayValue(currentSeconds, currentUnit);
-    document.getElementById("countdown").textContent = display.value;
-    document.getElementById("countdown-unit").textContent = display.label;
+    const countdownElement = document.getElementById("countdown");
+    const unitElement = document.getElementById("countdown-unit");
+
+    if (countdownElement) {
+        countdownElement.textContent = display.value;
+    }
+
+    if (unitElement) {
+        unitElement.textContent = display.label;
+    }
 }
 
 function getDisplayValue(seconds, unit) {
@@ -145,23 +170,50 @@ function formatDecimal(value) {
 }
 
 function openSettings() {
-    document.getElementById("settings-panel").hidden = false;
-    document.getElementById("settings-toggle").setAttribute("aria-expanded", "true");
+    const panel = document.getElementById("settings-panel");
+    const toggle = document.getElementById("settings-toggle");
+
+    if (panel) {
+        panel.hidden = false;
+    }
+
+    if (toggle) {
+        toggle.setAttribute("aria-expanded", "true");
+    }
 }
 
 function closeSettings() {
-    document.getElementById("settings-panel").hidden = true;
-    document.getElementById("settings-toggle").setAttribute("aria-expanded", "false");
+    const panel = document.getElementById("settings-panel");
+    const toggle = document.getElementById("settings-toggle");
+
+    if (panel) {
+        panel.hidden = true;
+    }
+
+    if (toggle) {
+        toggle.setAttribute("aria-expanded", "false");
+    }
 }
 
 function showComingSoon(campus) {
-    document.getElementById("coming-soon-text").textContent =
-        `${campus} wird später freigeschaltet. Countdown bleibt unverändert.`;
-    document.getElementById("coming-soon-overlay").hidden = false;
+    const text = document.getElementById("coming-soon-text");
+    const overlay = document.getElementById("coming-soon-overlay");
+
+    if (text) {
+        text.textContent = `${campus} wird später freigeschaltet. Countdown bleibt unverändert.`;
+    }
+
+    if (overlay) {
+        overlay.hidden = false;
+    }
 }
 
 function closeComingSoon() {
-    document.getElementById("coming-soon-overlay").hidden = true;
+    const overlay = document.getElementById("coming-soon-overlay");
+
+    if (overlay) {
+        overlay.hidden = true;
+    }
 }
 
 function setCountdownUnit(unit) {
@@ -180,4 +232,20 @@ function setActiveOption(selector, dataKey, value) {
     document.querySelectorAll(selector).forEach(button => {
         button.classList.toggle("active", button.dataset[dataKey] === value);
     });
+}
+
+function getStoredValue(key, fallback) {
+    try {
+        return localStorage.getItem(key) || fallback;
+    } catch (error) {
+        return fallback;
+    }
+}
+
+function setStoredValue(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (error) {
+        console.warn("Einstellung konnte nicht gespeichert werden.", error);
+    }
 }

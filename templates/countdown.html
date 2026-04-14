@@ -7,17 +7,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-mode="{{ mode }}">
-    <button class="settings-toggle" id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
-        <span aria-hidden="true">&#9881;</span>
-    </button>
-
     <main class="screen countdown-page">
         <section class="terminal-panel terminal-panel-wide" aria-live="polite">
             <div class="top-bar">
                 <a href="{{ url_for('home') }}" class="back-button" aria-label="Zur Startseite">
                     <span class="arrow"></span>
                 </a>
-                <p id="mode-label" class="eyebrow">Lade Countdown...</p>
+                <div class="top-actions">
+                    <p id="mode-label" class="eyebrow">Lade Countdown...</p>
+                    <button class="settings-toggle" id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
+                        <span aria-hidden="true">&#9881;</span>
+                    </button>
+                </div>
             </div>
 
             <p id="target-date" class="target-line">Lade Ziel...</p>

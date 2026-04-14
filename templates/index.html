@@ -8,12 +8,17 @@
 </head>
 <body>
     <main class="screen start-page">
-        <section class="terminal-panel" aria-labelledby="page-title">
+        <section class="terminal-panel settings-host" aria-labelledby="page-title">
+            <button class="settings-toggle" id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
+                <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M19.4 13.5c.1-.5.1-1 .1-1.5s0-1-.1-1.5l2-1.5-2-3.5-2.4 1a8.3 8.3 0 0 0-2.6-1.5L14 2.5h-4L9.6 5a8.3 8.3 0 0 0-2.6 1.5l-2.4-1-2 3.5 2 1.5c-.1.5-.1 1-.1 1.5s0 1 .1 1.5l-2 1.5 2 3.5 2.4-1a8.3 8.3 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a8.3 8.3 0 0 0 2.6-1.5l2.4 1 2-3.5-2-1.5Z"></path>
+                    <circle cx="12" cy="12" r="3.2"></circle>
+                </svg>
+                <span>SET</span>
+            </button>
+
             <div class="top-bar top-bar-start">
                 <p class="eyebrow">HSLU_TIMER.EXE</p>
-                <button class="settings-toggle" id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
-                    <span aria-hidden="true">&#9881;</span>
-                </button>
             </div>
 
             <h1 id="page-title">Semester Countdown</h1>

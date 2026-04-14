@@ -187,6 +187,10 @@ a {
     width: min(1040px, 100%);
 }
 
+.settings-host {
+    padding-top: clamp(92px, 8vw, 112px);
+}
+
 .eyebrow {
     margin: 0 0 22px;
     color: var(--cyan);
@@ -401,12 +405,47 @@ h1 {
 }
 
 .settings-toggle {
-    width: 58px;
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    z-index: 25;
+    width: 112px;
     height: 58px;
-    font-size: 1.55rem;
-    flex: 0 0 auto;
-    position: relative;
-    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 2px solid var(--green);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 46%),
+        #061009;
+    color: var(--green);
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0;
+    text-shadow: 0 0 12px var(--green);
+    box-shadow:
+        inset 0 0 18px var(--green-bg),
+        0 0 0 4px var(--shadow),
+        0 0 26px var(--green-soft),
+        0 6px 0 var(--button-shadow);
+}
+
+.settings-icon {
+    width: 25px;
+    height: 25px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 8px var(--green));
+}
+
+.settings-toggle span {
+    display: inline-block;
+    color: var(--green);
+    font-weight: 900;
 }
 
 .settings-panel {
@@ -612,12 +651,16 @@ h1 {
     }
 
     .settings-toggle {
-        width: 50px;
+        top: 14px;
+        right: 14px;
+        width: 96px;
         height: 50px;
+        font-size: 0.9rem;
     }
 
-    .top-actions {
-        gap: 10px;
+    .settings-icon {
+        width: 22px;
+        height: 22px;
     }
 
     .settings-panel {

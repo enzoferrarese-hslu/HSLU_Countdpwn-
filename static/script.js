@@ -1,12 +1,15 @@
 let countdownInterval = null;
 let currentSeconds = 0;
 let currentUnit = "seconds";
+let currentMode = null;
+let countdownLoaded = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     const body = document.body;
     const mode = body.dataset.mode;
 
     if (mode) {
+        currentMode = mode;
         startCountdown(mode);
     }
 
@@ -37,7 +40,14 @@ function initSettings() {
     }
 
     document.querySelectorAll(".campus-option").forEach(button => {
-        button.addEventListener("click", () => showComingSoon(button.dataset.campus));
+        button.addEventListener("click", () => {
+            if (button.dataset.campus === "Technik & Architektur") {
+                window.location.href = "/";
+                return;
+            }
+
+            showComingSoon(button.dataset.campus);
+        });
     });
 
     document.querySelectorAll(".unit-option").forEach(button => {
@@ -62,6 +72,8 @@ function initSettings() {
 }
 
 function startCountdown(mode) {
+    currentMode = mode;
+
     fetch(`/api/countdown/${mode}`)
         .then(response => {
             if (!response.ok) {
@@ -92,6 +104,7 @@ function startCountdown(mode) {
                 `${data.semester_name} aus SQLite geladen`;
 
             currentSeconds = data.countdown.total_seconds;
+            countdownLoaded = true;
             updateCountdownDisplay();
 
             if (countdownInterval) {
@@ -121,16 +134,51 @@ function startCountdown(mode) {
 }
 
 function updateCountdownDisplay() {
-    const display = getDisplayValue(currentSeconds, currentUnit);
     const countdownElement = document.getElementById("countdown");
     const unitElement = document.getElementById("countdown-unit");
+    const tileElement = countdownElement ? countdownElement.closest(".time-tile") : null;
 
-    if (countdownElement) {
-        countdownElement.textContent = display.value;
+    if (!countdownElement || !countdownLoaded) {
+        return;
     }
+
+    if (currentSeconds <= 0) {
+        showCountdownFinished();
+        return;
+    }
+
+    const display = getDisplayValue(currentSeconds, currentUnit);
+
+    if (tileElement) {
+        tileElement.classList.remove("expired");
+    }
+
+    countdownElement.textContent = display.value;
 
     if (unitElement) {
         unitElement.textContent = display.label;
+    }
+}
+
+function showCountdownFinished() {
+    const countdownElement = document.getElementById("countdown");
+    const unitElement = document.getElementById("countdown-unit");
+    const tileElement = countdownElement ? countdownElement.closest(".time-tile") : null;
+
+    if (!countdownElement) {
+        return;
+    }
+
+    countdownElement.textContent = currentMode === "exam"
+        ? "Prüfungsphase fertig - Geniesst die Ferien"
+        : "Kontaktstudium fertig - Viel Erfolg bei den MEP's";
+
+    if (unitElement) {
+        unitElement.textContent = "";
+    }
+
+    if (tileElement) {
+        tileElement.classList.add("expired");
     }
 }
 
@@ -219,7 +267,10 @@ function closeComingSoon() {
 function setCountdownUnit(unit) {
     currentUnit = unit || "seconds";
     setActiveOption(".unit-option", "unit", currentUnit);
-    updateCountdownDisplay();
+
+    if (countdownLoaded) {
+        updateCountdownDisplay();
+    }
 }
 
 function applyTheme(theme) {

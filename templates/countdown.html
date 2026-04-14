@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-mode="{{ mode }}">
+    <button class="settings-toggle" id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
+        <span aria-hidden="true">&#9881;</span>
+    </button>
+
     <main class="screen countdown-page">
         <section class="terminal-panel terminal-panel-wide" aria-live="polite">
             <div class="top-bar">
@@ -21,7 +25,7 @@
             <div class="countdown-grid" aria-label="Countdown">
                 <div class="time-tile time-tile-primary">
                     <span id="countdown">---</span>
-                    <small>Sekunden</small>
+                    <small id="countdown-unit">Sekunden</small>
                 </div>
             </div>
 
@@ -31,6 +35,61 @@
             </div>
         </section>
     </main>
+
+    <aside class="settings-panel" id="settings-panel" aria-labelledby="settings-title" hidden>
+        <div class="settings-header">
+            <div>
+                <p class="eyebrow">CONFIG_SYS</p>
+                <h2 id="settings-title">Einstellungen</h2>
+            </div>
+            <button class="icon-button" id="settings-close" type="button" aria-label="Einstellungen schließen">X</button>
+        </div>
+
+        <section class="settings-section" aria-labelledby="campus-title">
+            <h3 id="campus-title">Change Campus</h3>
+            <div class="settings-options">
+                <button type="button" class="option-button campus-option" data-campus="Technik & Architektur">Technik & Architektur</button>
+                <button type="button" class="option-button campus-option" data-campus="Wirtschaft">Wirtschaft</button>
+                <button type="button" class="option-button campus-option" data-campus="Informatik">Informatik</button>
+                <button type="button" class="option-button campus-option" data-campus="Soziale Arbeit">Soziale Arbeit</button>
+                <button type="button" class="option-button campus-option" data-campus="Design Film Kunst">Design Film Kunst</button>
+                <button type="button" class="option-button campus-option" data-campus="Musik">Musik</button>
+                <button type="button" class="option-button campus-option" data-campus="Gesundheit">Gesundheit</button>
+            </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="unit-title">
+            <h3 id="unit-title">Change Settings</h3>
+            <div class="settings-options compact-options" role="group" aria-label="Countdown-Anzeige">
+                <button type="button" class="option-button unit-option" data-unit="months">Monate</button>
+                <button type="button" class="option-button unit-option" data-unit="weeks">Wochen</button>
+                <button type="button" class="option-button unit-option" data-unit="days">Tage</button>
+                <button type="button" class="option-button unit-option active" data-unit="seconds">Sekunden</button>
+            </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="theme-title">
+            <h3 id="theme-title">UI-Farbe ändern</h3>
+            <div class="settings-options color-options" role="group" aria-label="Farbtheme">
+                <button type="button" class="color-option" data-theme="pink">Pink</button>
+                <button type="button" class="color-option" data-theme="blue">Blau</button>
+                <button type="button" class="color-option" data-theme="red">Rot</button>
+                <button type="button" class="color-option active" data-theme="green">Grün</button>
+                <button type="button" class="color-option" data-theme="purple">Lila</button>
+                <button type="button" class="color-option" data-theme="orange">Orange</button>
+                <button type="button" class="color-option" data-theme="yellow">Gelb</button>
+            </div>
+        </section>
+    </aside>
+
+    <div class="coming-soon-overlay" id="coming-soon-overlay" hidden>
+        <section class="coming-soon-box" role="dialog" aria-modal="true" aria-labelledby="coming-soon-title">
+            <p class="eyebrow">MODULE_LOCKED</p>
+            <h2 id="coming-soon-title">Coming Soon</h2>
+            <p id="coming-soon-text">Campus-Wechsel wird später aktiviert.</p>
+            <button class="menu-button panel-action" id="coming-soon-close" type="button">OK</button>
+        </section>
+    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

@@ -1,7 +1,8 @@
 import sqlite3
 from datetime import datetime
+from pathlib import Path
 
-DB_NAME = "semester_dates.db"
+DB_NAME = Path(__file__).resolve().with_name("semester_dates.db")
 
 
 def get_current_semester():

@@ -16,8 +16,12 @@ function startCountdown(mode) {
         .then(data => {
             if (data.error) {
                 document.getElementById("target-date").textContent = data.error;
+                document.getElementById("status-text").textContent = "Countdown nicht verfügbar";
                 return;
             }
+
+            const label = mode === "contact" ? "Kontaktstudium" : "Prüfungsphase";
+            document.getElementById("mode-label").textContent = `${label.toUpperCase()}_MODE`;
 
             if (mode === "contact") {
                 document.getElementById("target-date").textContent =
@@ -26,6 +30,9 @@ function startCountdown(mode) {
                 document.getElementById("target-date").textContent =
                     `Ziel: Prüfungsphase (${data.target_date})`;
             }
+
+            document.getElementById("status-text").textContent =
+                `${data.semester_name} aus SQLite geladen`;
 
             currentSeconds = data.countdown.total_seconds;
             updateCountdownDisplay();
@@ -40,6 +47,7 @@ function startCountdown(mode) {
                 if (currentSeconds <= 0) {
                     currentSeconds = 0;
                     updateCountdownDisplay();
+                    document.getElementById("status-text").textContent = "Countdown abgeschlossen";
                     clearInterval(countdownInterval);
                     return;
                 }
@@ -50,6 +58,7 @@ function startCountdown(mode) {
         .catch(error => {
             document.getElementById("target-date").textContent =
                 "Fehler beim Laden des Countdowns.";
+            document.getElementById("status-text").textContent = "API nicht erreichbar";
             console.error(error);
         });
 }

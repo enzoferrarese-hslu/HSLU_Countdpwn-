@@ -3,26 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semester Countdown</title>
+    <title>HSLU Semester Countdown</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container start-page">
-        <h1>Semester Countdown</h1>
+    <main class="screen start-page">
+        <section class="terminal-panel" aria-labelledby="page-title">
+            <p class="eyebrow">HSLU_TIMER.EXE</p>
+            <h1 id="page-title">Semester Countdown</h1>
 
-        <p class="semester-line">
-            Semester:
-            {% if semester %}
-                {{ semester.semester_name }}
-            {% else %}
-                Kein aktuelles Semester gefunden
-            {% endif %}
-        </p>
+            <div class="semester-card">
+                <span class="card-label">Aktives Semester</span>
+                <strong>
+                    {% if semester %}
+                        {{ semester.semester_name }}
+                    {% else %}
+                        Kein aktuelles Semester gefunden
+                    {% endif %}
+                </strong>
+            </div>
 
-        <div class="button-group">
-            <a href="/countdown/contact" class="menu-button">Kontaktstudium</a>
-            <a href="/countdown/exam" class="menu-button">Prüfungsphase</a>
-        </div>
-    </div>
+            <nav class="button-group" aria-label="Countdown auswählen">
+                <a href="{{ url_for('countdown_page', mode='contact') }}" class="menu-button">
+                    <span>01</span>
+                    Kontaktstudium
+                </a>
+                <a href="{{ url_for('countdown_page', mode='exam') }}" class="menu-button">
+                    <span>02</span>
+                    Prüfungsphase
+                </a>
+            </nav>
+        </section>
+    </main>
 </body>
 </html>

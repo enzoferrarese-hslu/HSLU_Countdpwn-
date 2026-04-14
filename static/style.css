@@ -1,134 +1,206 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #070707;
+    --panel: #10130f;
+    --green: #39ff88;
+    --green-soft: rgba(57, 255, 136, 0.22);
+    --amber: #ffd166;
+    --pink: #ff5c8a;
+    --cyan: #7df9ff;
+    --ink: #f4ffe8;
+    --muted: #a7bfa5;
+    --shadow: #020302;
+}
 
 body {
-    margin: 0;
-    padding: 0;
-    background-color: #000000;
-    color: #00ff00;
-    font-family: 'Press Start 2P', monospace;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin: 0;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        radial-gradient(circle at top left, rgba(125, 249, 255, 0.16), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(255, 92, 138, 0.12), transparent 30rem),
+        var(--bg);
+    background-size: 28px 28px, 28px 28px, auto, auto, auto;
+    color: var(--ink);
+    font-family: "Courier New", Consolas, monospace;
 }
 
-.container {
-    width: 90%;
-    max-width: 1200px;
-    text-align: center;
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0.04) 1px,
+        transparent 1px,
+        transparent 5px
+    );
+    opacity: 0.45;
+    mix-blend-mode: screen;
 }
 
-/* -------------------- */
-/* STARTSEITE */
-/* -------------------- */
+a {
+    color: inherit;
+}
 
-.start-page h1 {
-    font-size: 3.5rem;
-    line-height: 1.3;
-    margin-bottom: 60px;
+.screen {
+    width: min(1120px, calc(100% - 32px));
+    min-height: 100vh;
+    margin: 0 auto;
+    display: grid;
+    place-items: center;
+    padding: 32px 0;
+}
+
+.terminal-panel {
+    width: min(860px, 100%);
+    position: relative;
+    padding: clamp(28px, 5vw, 56px);
+    border: 2px solid var(--green);
+    border-radius: 8px;
+    background:
+        linear-gradient(180deg, rgba(57, 255, 136, 0.08), transparent 48%),
+        var(--panel);
+    box-shadow:
+        0 0 0 6px var(--shadow),
+        0 0 42px var(--green-soft),
+        12px 12px 0 rgba(0, 0, 0, 0.52);
+    overflow: hidden;
+}
+
+.terminal-panel::after {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border: 1px dashed rgba(57, 255, 136, 0.28);
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+.terminal-panel-wide {
+    width: min(1040px, 100%);
+}
+
+.eyebrow {
+    margin: 0 0 22px;
+    color: var(--cyan);
+    font-size: clamp(0.82rem, 2vw, 1rem);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin: 0 0 34px;
+    color: var(--green);
+    font-size: clamp(2.35rem, 8vw, 5.7rem);
+    line-height: 0.98;
+    text-transform: uppercase;
     text-shadow:
-        0 0 6px #00ff00,
-        0 0 12px #00ff00,
-        0 0 20px rgba(0, 255, 0, 0.8);
+        3px 3px 0 var(--pink),
+        0 0 24px rgba(57, 255, 136, 0.55);
 }
 
-.semester-line {
-    font-size: 1.2rem;
-    line-height: 1.8;
-    margin-bottom: 70px;
-    text-shadow:
-        0 0 4px #00ff00,
-        0 0 10px rgba(0, 255, 0, 0.6);
+.semester-card {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 36px;
+    padding: 20px;
+    border: 2px solid var(--amber);
+    border-radius: 8px;
+    background: rgba(255, 209, 102, 0.08);
+    box-shadow: inset 0 0 22px rgba(255, 209, 102, 0.12);
+}
+
+.card-label,
+.time-tile small {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.semester-card strong {
+    color: var(--ink);
+    font-size: clamp(1.1rem, 3vw, 1.7rem);
+    line-height: 1.35;
 }
 
 .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
 }
 
-/* Pixel / Retro Buttons */
-.menu-button {
-    display: inline-block;
-    min-width: 260px;
-    padding: 22px 30px;
-    background: #00ff00;
-    color: #001a00;
-    text-decoration: none;
-    font-size: 1rem;
-    text-align: center;
-
-    border-top: 4px solid #99ff99;
-    border-left: 4px solid #66ff66;
-    border-right: 4px solid #006600;
-    border-bottom: 4px solid #003300;
-
-    box-shadow:
-        0 6px 0 #003300,
-        0 10px 0 #001a00;
-
-    transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
-}
-
-.menu-button:hover {
-    background: #33ff33;
-}
-
-.menu-button:active {
-    transform: translateY(6px);
-    box-shadow:
-        0 2px 0 #003300,
-        0 4px 0 #001a00;
-}
-
-/* -------------------- */
-/* COUNTDOWN SEITE */
-/* -------------------- */
-
-.countdown-page {
-    max-width: 1200px;
-}
-
-.top-bar {
-    width: 100%;
-    text-align: left;
-    margin-bottom: 50px;
-}
-
-/* Zurück-Pfeil Button */
+.menu-button,
 .back-button {
-    display: inline-block;
-    width: 64px;
-    height: 64px;
-    background: #00ff00;
+    border: 0;
+    border-radius: 6px;
+    background: var(--green);
+    color: #041208;
+    font-weight: 900;
     text-decoration: none;
-    position: relative;
-
-    border-top: 4px solid #99ff99;
-    border-left: 4px solid #66ff66;
-    border-right: 4px solid #006600;
-    border-bottom: 4px solid #003300;
-
+    text-transform: uppercase;
     box-shadow:
-        0 6px 0 #003300,
-        0 10px 0 #001a00;
-
-    transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+        inset 4px 4px 0 rgba(255, 255, 255, 0.55),
+        inset -4px -4px 0 rgba(0, 0, 0, 0.34),
+        0 7px 0 #0b5f2f;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.12s ease;
 }
 
+.menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 76px;
+    padding: 18px;
+    font-size: clamp(0.95rem, 2.4vw, 1.25rem);
+}
+
+.menu-button span {
+    color: #0b5f2f;
+}
+
+.menu-button:hover,
 .back-button:hover {
-    background: #33ff33;
+    filter: brightness(1.12);
 }
 
+.menu-button:active,
 .back-button:active {
     transform: translateY(6px);
     box-shadow:
-        0 2px 0 #003300,
-        0 4px 0 #001a00;
+        inset 4px 4px 0 rgba(255, 255, 255, 0.4),
+        inset -4px -4px 0 rgba(0, 0, 0, 0.28),
+        0 1px 0 #0b5f2f;
 }
 
-/* Pfeil im Button */
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 34px;
+}
+
+.top-bar .eyebrow {
+    margin: 0;
+    text-align: right;
+}
+
+.back-button {
+    width: 58px;
+    height: 58px;
+    position: relative;
+    flex: 0 0 auto;
+}
+
 .arrow {
     position: absolute;
     top: 50%;
@@ -136,108 +208,104 @@ body {
     width: 18px;
     height: 18px;
     transform: translate(-50%, -50%) rotate(45deg);
-    border-left: 5px solid #001a00;
-    border-bottom: 5px solid #001a00;
+    border-left: 5px solid #041208;
+    border-bottom: 5px solid #041208;
 }
 
 .target-line {
-    font-size: 1.2rem;
-    line-height: 1.8;
-    margin-bottom: 70px;
-    text-shadow:
-        0 0 4px #00ff00,
-        0 0 10px rgba(0, 255, 0, 0.6);
+    margin: 0 0 28px;
+    color: var(--amber);
+    font-size: clamp(1rem, 2.6vw, 1.35rem);
+    font-weight: 700;
+    line-height: 1.5;
 }
 
-.countdown-only-box {
-    padding: 20px;
+.countdown-grid {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, minmax(120px, 1fr));
+    gap: 16px;
+    align-items: stretch;
 }
 
-#countdown {
-    font-size: 6.5rem;
-    line-height: 1.2;
-    word-break: break-word;
-    text-shadow:
-        0 0 8px #00ff00,
-        0 0 16px #00ff00,
-        0 0 28px rgba(0, 255, 0, 0.8);
+.time-tile {
+    min-height: 132px;
+    display: grid;
+    align-content: center;
+    gap: 12px;
+    padding: 18px;
+    border: 2px solid rgba(125, 249, 255, 0.74);
+    border-radius: 8px;
+    background: rgba(125, 249, 255, 0.06);
+    box-shadow: inset 0 0 24px rgba(125, 249, 255, 0.09);
+    text-align: center;
 }
 
-.label {
-    margin-top: 25px;
-    font-size: 1.2rem;
-    text-shadow:
-        0 0 4px #00ff00,
-        0 0 10px rgba(0, 255, 0, 0.6);
+.time-tile-primary {
+    border-color: var(--green);
+    background: rgba(57, 255, 136, 0.08);
 }
 
-/* -------------------- */
-/* RESPONSIVE */
-/* -------------------- */
+.time-tile span {
+    display: block;
+    min-width: 0;
+    color: var(--ink);
+    font-size: clamp(2rem, 5vw, 4.1rem);
+    font-weight: 900;
+    line-height: 1;
+    overflow-wrap: anywhere;
+    text-shadow: 0 0 18px rgba(57, 255, 136, 0.45);
+}
 
-@media (max-width: 1000px) {
-    .start-page h1 {
-        font-size: 2.4rem;
+.time-tile-primary span {
+    color: var(--green);
+    font-size: clamp(2.45rem, 6vw, 5.6rem);
+}
+
+.status-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.status-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: var(--green);
+    box-shadow: 0 0 18px var(--green);
+}
+
+@media (max-width: 860px) {
+    .button-group,
+    .countdown-grid {
+        grid-template-columns: 1fr;
     }
 
-    .semester-line,
-    .target-line {
-        font-size: 0.9rem;
-    }
-
-    .menu-button {
-        min-width: 220px;
-        font-size: 0.8rem;
-        padding: 18px 20px;
-    }
-
-    #countdown {
-        font-size: 4rem;
-    }
-
-    .label {
-        font-size: 0.9rem;
+    .time-tile {
+        min-height: 112px;
     }
 }
 
-@media (max-width: 600px) {
-    .start-page h1 {
-        font-size: 1.8rem;
+@media (max-width: 560px) {
+    .screen {
+        width: min(100% - 20px, 1120px);
+        padding: 18px 0;
     }
 
-    .semester-line,
-    .target-line {
-        font-size: 0.7rem;
-        line-height: 1.6;
+    .terminal-panel {
+        padding: 24px;
     }
 
-    .button-group {
-        gap: 20px;
-    }
-
-    .menu-button {
-        min-width: 180px;
-        font-size: 0.7rem;
-        padding: 16px 16px;
-    }
-
-    #countdown {
-        font-size: 2.5rem;
-    }
-
-    .label {
-        font-size: 0.7rem;
+    .top-bar {
+        align-items: flex-start;
     }
 
     .back-button {
-        width: 54px;
-        height: 54px;
-    }
-
-    .arrow {
-        width: 14px;
-        height: 14px;
-        border-left: 4px solid #001a00;
-        border-bottom: 4px solid #001a00;
+        width: 50px;
+        height: 50px;
     }
 }

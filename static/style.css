@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+body {
+    outline: 10px solid red !important;
+}
+
 :root {
     --bg: #070707;
     --panel: #10130f;

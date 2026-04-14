@@ -445,23 +445,22 @@ h1 {
         0 1px 0 var(--button-shadow);
 }
 
-.settings-symbol {
-    width: 26px;
-    height: 26px;
-    display: inline-grid;
-    place-items: center;
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    font-size: 1.25rem;
-    line-height: 1;
-    box-shadow: 0 0 12px var(--green-soft);
+.settings-icon {
+    width: 27px;
+    height: 27px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 8px var(--green));
 }
 
 .settings-panel {
     position: fixed;
     top: 24px;
     right: 24px;
-    z-index: 30;
+    z-index: 10000;
     width: min(420px, calc(100vw - 32px));
     max-height: calc(100vh - 48px);
     overflow: auto;
@@ -594,7 +593,7 @@ h1 {
 .coming-soon-overlay {
     position: fixed;
     inset: 0;
-    z-index: 40;
+    z-index: 10001;
     display: grid;
     place-items: center;
     padding: 24px;
@@ -671,10 +670,9 @@ h1 {
         font-size: 0.82rem;
     }
 
-    .settings-symbol {
-        width: 22px;
-        height: 22px;
-        font-size: 1.05rem;
+    .settings-icon {
+        width: 23px;
+        height: 23px;
     }
 
     .settings-panel {

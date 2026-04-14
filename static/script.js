@@ -9,6 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const mode = body.dataset.mode;
 
     if (mode) {
+        if (!["contact", "exam"].includes(mode)) {
+            showErrorState("Ungültiger Modus.");
+            initSettings();
+            return;
+        }
+
         currentMode = mode;
         startCountdown(mode);
     }
@@ -77,15 +83,24 @@ function startCountdown(mode) {
     fetch(`/api/countdown/${mode}`)
         .then(response => {
             if (!response.ok) {
-                throw new Error("Countdown API nicht erreichbar.");
+                throw new Error(`API nicht erreichbar (Status ${response.status}).`);
             }
 
             return response.json();
         })
         .then(data => {
             if (data.error) {
-                document.getElementById("target-date").textContent = data.error;
-                document.getElementById("status-text").textContent = "Countdown nicht verfügbar";
+                showErrorState(data.error);
+                return;
+            }
+
+            if (!data.countdown || typeof data.countdown.total_seconds !== "number") {
+                showErrorState("Countdown-Daten fehlen oder sind ungültig.");
+                return;
+            }
+
+            if (!data.target_date || !data.semester_name) {
+                showErrorState("Semesterdaten fehlen in der API-Antwort.");
                 return;
             }
 
@@ -126,11 +141,49 @@ function startCountdown(mode) {
             }, 1000);
         })
         .catch(error => {
-            document.getElementById("target-date").textContent =
-                "Fehler beim Laden des Countdowns.";
-            document.getElementById("status-text").textContent = "API nicht erreichbar";
+            showErrorState(error.message || "Netzwerkfehler beim Laden des Countdowns.");
             console.error(error);
         });
+}
+
+function showErrorState(message) {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+
+    countdownLoaded = false;
+
+    const targetLine = document.getElementById("target-date");
+    const countdownGrid = document.querySelector(".countdown-grid");
+    const statusStrip = document.querySelector(".status-strip");
+    const errorState = document.getElementById("error-state");
+    const errorDetail = document.getElementById("error-detail");
+    const modeLabel = document.getElementById("mode-label");
+
+    if (targetLine) {
+        targetLine.hidden = true;
+    }
+
+    if (countdownGrid) {
+        countdownGrid.hidden = true;
+    }
+
+    if (statusStrip) {
+        statusStrip.hidden = true;
+    }
+
+    if (modeLabel) {
+        modeLabel.textContent = "ERROR_MODE";
+    }
+
+    if (errorDetail) {
+        errorDetail.textContent = message || "Unbekannter Fehler.";
+    }
+
+    if (errorState) {
+        errorState.hidden = false;
+    }
 }
 
 function updateCountdownDisplay() {

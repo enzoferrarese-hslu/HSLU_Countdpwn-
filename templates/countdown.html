@@ -38,6 +38,13 @@
                 <span class="status-dot"></span>
                 <span id="status-text">Synchronisiere mit SQLite</span>
             </div>
+
+            <section class="error-state" id="error-state" aria-live="assertive" hidden>
+                <p class="eyebrow">TIMER_INTERRUPT</p>
+                <p class="error-main">Keine Sorge, das Semester läuft noch – nur dein Timer hat kurz angehalten.</p>
+                <p class="error-detail" id="error-detail">Unbekannter Fehler.</p>
+                <a href="{{ url_for('home') }}" class="menu-button panel-action">Zurück zur Startseite</a>
+            </section>
         </section>
     </main>
 

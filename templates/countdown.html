@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body data-mode="{{ mode }}">
-    TEST-MARKER-COUNTDOWN-12345
     <main class="screen countdown-page">
-        <section class="terminal-panel terminal-panel-wide" aria-live="polite">
-            <button id="settings-toggle">SETTINGS</button>
+        <section class="terminal-panel terminal-panel-wide settings-host" aria-live="polite">
+            <button id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
+                <span class="settings-symbol" aria-hidden="true">+</span>
+                <span>SETTINGS</span>
+            </button>
 
             <div class="top-bar">
                 <a href="{{ url_for('home') }}" class="back-button" aria-label="Zur Startseite">

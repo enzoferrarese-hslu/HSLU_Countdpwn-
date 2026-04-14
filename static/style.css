@@ -2,10 +2,6 @@
     box-sizing: border-box;
 }
 
-body {
-    outline: 10px solid red !important;
-}
-
 :root {
     --bg: #070707;
     --panel: #10130f;
@@ -189,6 +185,10 @@ a {
 
 .terminal-panel-wide {
     width: min(1040px, 100%);
+}
+
+.settings-host {
+    padding-top: clamp(92px, 8vw, 112px);
 }
 
 .eyebrow {
@@ -405,11 +405,56 @@ h1 {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: red;
-    color: white;
-    padding: 10px 20px;
     z-index: 9999;
-    font-size: 16px;
+    min-width: 148px;
+    height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border: 2px solid var(--green);
+    border-radius: 6px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 48%),
+        #061009;
+    color: var(--green);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 900;
+    text-decoration: none;
+    text-shadow: 0 0 12px var(--green);
+    box-shadow:
+        inset 0 0 18px var(--green-bg),
+        0 0 0 4px var(--shadow),
+        0 0 26px var(--green-soft),
+        0 7px 0 var(--button-shadow);
+    cursor: pointer;
+}
+
+#settings-toggle:hover {
+    filter: brightness(1.14);
+}
+
+#settings-toggle:active {
+    transform: translateY(6px);
+    box-shadow:
+        inset 0 0 12px var(--green-bg),
+        0 0 0 4px var(--shadow),
+        0 0 18px var(--green-soft),
+        0 1px 0 var(--button-shadow);
+}
+
+.settings-symbol {
+    width: 26px;
+    height: 26px;
+    display: inline-grid;
+    place-items: center;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    line-height: 1;
+    box-shadow: 0 0 12px var(--green-soft);
 }
 
 .settings-panel {
@@ -604,6 +649,10 @@ h1 {
         padding: 24px;
     }
 
+    .settings-host {
+        padding-top: 86px;
+    }
+
     .top-bar {
         align-items: center;
         gap: 12px;
@@ -612,6 +661,20 @@ h1 {
     .back-button {
         width: 50px;
         height: 50px;
+    }
+
+    #settings-toggle {
+        top: 14px;
+        right: 14px;
+        min-width: 128px;
+        height: 50px;
+        font-size: 0.82rem;
+    }
+
+    .settings-symbol {
+        width: 22px;
+        height: 22px;
+        font-size: 1.05rem;
     }
 
     .settings-panel {

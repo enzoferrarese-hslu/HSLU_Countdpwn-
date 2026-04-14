@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    TEST-MARKER-INDEX-12345
     <main class="screen start-page">
-        <section class="terminal-panel" aria-labelledby="page-title">
-            <button id="settings-toggle">SETTINGS</button>
+        <section class="terminal-panel settings-host" aria-labelledby="page-title">
+            <button id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
+                <span class="settings-symbol" aria-hidden="true">+</span>
+                <span>SETTINGS</span>
+            </button>
 
             <div class="top-bar top-bar-start">
                 <p class="eyebrow">HSLU_TIMER.EXE</p>

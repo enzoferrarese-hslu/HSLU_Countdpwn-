@@ -1,12 +1,11 @@
 import re
-import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
+from db import init_db, replace_current_semester, wait_for_db
 
 URL = "https://www.hslu.ch/de-ch/technik-architektur/studium/bachelor/wirtschaftsingenieur-innovation/"
-DB_NAME = "semester_dates.db"
 
 MONTHS = {
     "januar": "01",
@@ -147,62 +146,8 @@ def get_current_semester(data):
     return None
 
 
-def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS semester_dates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            semester_name TEXT NOT NULL UNIQUE,
-            contact_start TEXT NOT NULL,
-            contact_end TEXT NOT NULL,
-            exam_start TEXT NOT NULL,
-            exam_end TEXT NOT NULL,
-            source_url TEXT NOT NULL,
-            scraped_at TEXT NOT NULL
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-
-
 def save_to_db(semester):
-    import sqlite3
-    from datetime import datetime, timezone
-
-    conn = sqlite3.connect("semester_dates.db")
-    cursor = conn.cursor()
-
-    # ALLES LÖSCHEN (wichtig!)
-    cursor.execute("DELETE FROM semester_dates")
-
-    scraped_at = datetime.now(timezone.utc).isoformat()
-
-    cursor.execute("""
-        INSERT INTO semester_dates (
-            semester_name,
-            contact_start,
-            contact_end,
-            exam_start,
-            exam_end,
-            source_url,
-            scraped_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (
-        semester["semester_name"],
-        semester["contact_start"],
-        semester["contact_end"],
-        semester["exam_start"],
-        semester["exam_end"],
-        URL,
-        scraped_at
-    ))
-
-    conn.commit()
-    conn.close()
+    replace_current_semester(semester, URL)
 
 def print_current_semester(semester):
     print("\nAKTUELLES SEMESTER:\n")
@@ -213,6 +158,9 @@ def print_current_semester(semester):
 
 
 def main():
+    print("Warte auf PostgreSQL...")
+    wait_for_db()
+
     print("Initialisiere Datenbank...")
     init_db()
 
@@ -232,7 +180,7 @@ def main():
         print("Kein aktuelles Semester gefunden.")
         return
 
-    print("Speichere aktuelles Semester in SQLite...")
+    print("Speichere aktuelles Semester in PostgreSQL...")
     save_to_db(current_semester)
 
     print("Fertig.")

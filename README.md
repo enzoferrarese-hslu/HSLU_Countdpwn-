@@ -1,66 +1,77 @@
-# HSLU Semester Countdown
+﻿# HSLU Semester Countdown
 
-Retro-inspirierte Flask-App, die die verbleibende Zeit bis zum Ende des Kontaktstudiums oder der Prüfungsphase anzeigt. Die Countdown-Daten werden aus einer lokalen SQLite-Datenbank gelesen.
+Flask-App fuer einen Semester-Countdown mit Retro-UI. Die Anwendung ist fuer Docker Compose mit drei Containern vorbereitet:
+
+- `db`: PostgreSQL-Datenbank fuer die Semesterdaten
+- `scraper`: Python/BeautifulSoup-Scraper, der einmal startet und das aktuelle Semester speichert
+- `web`: Flask-Webservice, der Startseite, Countdown-Seite und API ausliefert
 
 ## Projektstruktur
 
 ```text
 .
-├── app.py                  # Flask-Routen und API-Endpunkt
-├── countdown_service.py    # SQLite-Zugriff und get_countdown(mode)
-├── bf_code_for_db.py       # Scraper/Importer für Semesterdaten
-├── semester_dates.db       # lokale SQLite-Datenbank
-├── static/
-│   ├── script.js           # Countdown-Update im Browser
-│   └── style.css           # Retro-UI
-└── templates/
-    ├── index.html
-    └── countdown.html
+|-- app.py                  # Flask-Routen und API-Endpunkte
+|-- countdown_service.py    # Countdown-Logik und get_countdown(mode)
+|-- db.py                   # PostgreSQL-Verbindung und DB-Zugriff
+|-- bf_code_for_db.py       # BeautifulSoup-Scraper
+|-- docker-compose.yml      # db, scraper, web
+|-- Dockerfile.web
+|-- Dockerfile.scraper
+|-- static/
+|   |-- script.js
+|   `-- style.css
+`-- templates/
+    |-- index.html
+    `-- countdown.html
 ```
 
-## Installation
+## Start Mit Docker
+
+Voraussetzung: Docker Desktop muss laufen.
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
+docker compose up --build
 ```
 
-## Lokal starten
-
-```bash
-python app.py
-```
-
-Die App läuft standardmäßig auf `http://127.0.0.1:5000`.
-
-Für Debug-Modus:
-
-```bash
-$env:FLASK_DEBUG="1"
-python app.py
-```
-
-## Daten aktualisieren
-
-```bash
-python bf_code_for_db.py
-```
-
-Das Skript liest die Semestertermine von der HSLU-Seite und schreibt das aktuelle Semester in `semester_dates.db`.
-
-## API
+Danach ist die App erreichbar unter:
 
 ```text
+http://localhost:5000
+```
+
+Der Scraper-Container laeuft beim Start einmal, liest die HSLU-Seite und schreibt das aktuelle Semester in PostgreSQL. Der Webservice startet parallel, liest aus PostgreSQL und liefert weiterhin dieselben Routen aus.
+
+## Wichtige Routen
+
+```text
+GET /
+GET /countdown/contact
+GET /countdown/exam
 GET /api/countdown/contact
 GET /api/countdown/exam
 ```
 
-Beide Endpunkte nutzen weiterhin `get_countdown(mode)` aus `countdown_service.py`.
+## Konfiguration
 
-## Deployment-Hinweise
+Die Container verwenden diese Datenbank-URL:
 
-- `PORT` kann per Umgebungsvariable gesetzt werden.
-- `FLASK_DEBUG` sollte im Deployment nicht auf `1` stehen.
-- Für Linux-basierte Deployments kann `gunicorn app:app` verwendet werden.
-- Die SQLite-Datei muss beim Deployment mitgeliefert oder vor dem Start per Import-Skript erzeugt werden.
+```text
+DATABASE_URL=postgresql://postgres:postgres@db:5432/semester_countdown
+```
+
+Fuer lokale Ausfuehrung ohne Docker kann dieselbe Variable auf eine lokal laufende PostgreSQL-Datenbank zeigen.
+
+## Scraper Manuell Ausfuehren
+
+Wenn die Container bereits laufen:
+
+```bash
+docker compose run --rm scraper
+```
+
+## Hinweise
+
+- Das Frontend wurde fuer die Dockerisierung nicht angepasst.
+- Die fruehere SQLite-Datei `semester_dates.db` wird im Docker-Setup nicht mehr verwendet.
+- PostgreSQL-Daten bleiben im Docker-Volume `postgres_data` erhalten.
+- Falls beim ersten Laden noch keine Daten vorhanden sind, kurz warten oder den Scraper manuell erneut starten.

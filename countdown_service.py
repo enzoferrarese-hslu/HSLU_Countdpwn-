@@ -1,34 +1,10 @@
-import sqlite3
 from datetime import datetime
-from pathlib import Path
 
-DB_NAME = Path(__file__).resolve().with_name("semester_dates.db")
+from db import fetch_current_semester
 
 
 def get_current_semester():
-    conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT semester_name, contact_start, contact_end, exam_start, exam_end
-        FROM semester_dates
-        LIMIT 1
-    """)
-
-    row = cursor.fetchone()
-    conn.close()
-
-    if row is None:
-        return None
-
-    return {
-        "semester_name": row["semester_name"],
-        "contact_start": row["contact_start"],
-        "contact_end": row["contact_end"],
-        "exam_start": row["exam_start"],
-        "exam_end": row["exam_end"],
-    }
+    return fetch_current_semester()
 
 
 def get_target_date(mode):

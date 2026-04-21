@@ -3,14 +3,14 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
-from db import init_db, replace_current_semester, wait_for_db
+from app.database.db import init_db, replace_current_semester, wait_for_db
 
 URL = "https://www.hslu.ch/de-ch/technik-architektur/studium/bachelor/wirtschaftsingenieur-innovation/"
 
 MONTHS = {
     "januar": "01",
     "februar": "02",
-    "märz": "03",
+    "mÃ¤rz": "03",
     "april": "04",
     "mai": "05",
     "juni": "06",
@@ -30,7 +30,7 @@ def clean_text(text: str) -> str:
 
 def german_date_to_iso(date_str: str):
     date_str = clean_text(date_str)
-    match = re.match(r"^(\d{1,2})\.\s+([A-Za-zäöüÄÖÜ]+)\s+(\d{4})$", date_str)
+    match = re.match(r"^(\d{1,2})\.\s+([A-Za-zÃ¤Ã¶Ã¼Ã„Ã–Ãœ]+)\s+(\d{4})$", date_str)
     if not match:
         return None
 
@@ -47,7 +47,7 @@ def parse_date_range(text: str):
     text = clean_text(text)
 
     match = re.search(
-        r"(\d{1,2}\.\s+[A-Za-zäöüÄÖÜ]+(?:\s+\d{4})?)\s+bis\s+(\d{1,2}\.\s+[A-Za-zäöüÄÖÜ]+\s+\d{4})",
+        r"(\d{1,2}\.\s+[A-Za-zÃ¤Ã¶Ã¼Ã„Ã–Ãœ]+(?:\s+\d{4})?)\s+bis\s+(\d{1,2}\.\s+[A-Za-zÃ¤Ã¶Ã¼Ã„Ã–Ãœ]+\s+\d{4})",
         text,
         re.IGNORECASE
     )
@@ -91,7 +91,7 @@ def fetch_page_text():
 
 def extract_semester_data(page_text: str):
     semester_pattern = re.compile(
-        r"(Herbstsemester\s+\d{4}(?:/\d{2,4})?|Frühlingssemester\s+\d{4})(.*?)(?=(Herbstsemester\s+\d{4}(?:/\d{2,4})?|Frühlingssemester\s+\d{4}|$))",
+        r"(Herbstsemester\s+\d{4}(?:/\d{2,4})?|FrÃ¼hlingssemester\s+\d{4})(.*?)(?=(Herbstsemester\s+\d{4}(?:/\d{2,4})?|FrÃ¼hlingssemester\s+\d{4}|$))",
         re.IGNORECASE | re.DOTALL
     )
 
@@ -102,13 +102,13 @@ def extract_semester_data(page_text: str):
         block = clean_text(match.group(2))
 
         contact_match = re.search(
-            r"Kontaktstudium:\s*(.*?)(?=Prüfungsphase|Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
+            r"Kontaktstudium:\s*(.*?)(?=PrÃ¼fungsphase|Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
             block,
             re.IGNORECASE | re.DOTALL
         )
 
         exam_match = re.search(
-            r"Prüfungsphase(?:\s*\([^)]*\))?:\s*(.*?)(?=Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
+            r"PrÃ¼fungsphase(?:\s*\([^)]*\))?:\s*(.*?)(?=Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
             block,
             re.IGNORECASE | re.DOTALL
         )
@@ -153,7 +153,7 @@ def print_current_semester(semester):
     print("\nAKTUELLES SEMESTER:\n")
     print(f"Semester: {semester['semester_name']}")
     print(f"Kontaktstudium: {semester['contact_start']} bis {semester['contact_end']}")
-    print(f"Prüfungsphase: {semester['exam_start']} bis {semester['exam_end']}")
+    print(f"PrÃ¼fungsphase: {semester['exam_start']} bis {semester['exam_end']}")
     print("-" * 50)
 
 
@@ -189,3 +189,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

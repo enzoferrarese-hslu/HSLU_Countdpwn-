@@ -16,7 +16,7 @@ services:
   scraper:
     build:
       context: .
-      dockerfile: Dockerfile.scraper
+      dockerfile: docker/Dockerfile.scraper
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/semester_countdown
     depends_on:
@@ -27,7 +27,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile.web
+      dockerfile: docker/Dockerfile.web
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/semester_countdown
       PORT: 5000
@@ -40,3 +40,4 @@ services:
 
 volumes:
   postgres_data:
+

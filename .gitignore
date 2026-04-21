@@ -10,8 +10,13 @@ env/
 instance/
 *.log
 
+data/*.db
+semester_dates.db
+
 debug_raw_html.html
 debug_page_text.txt
+docs/debug_raw_html.html
+docs/debug_page_text.txt
 
 .pytest_cache/
 .coverage

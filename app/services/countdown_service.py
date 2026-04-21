@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from db import fetch_current_semester
+from app.database.db import fetch_current_semester
 
 
 def get_current_semester():
@@ -18,7 +18,7 @@ def get_target_date(mode):
     elif mode == "exam":
         return semester["exam_end"]
     else:
-        raise ValueError("Ungültiger Modus. Verwende 'contact' oder 'exam'.")
+        raise ValueError("UngÃ¼ltiger Modus. Verwende 'contact' oder 'exam'.")
 
 
 def calculate_countdown(target_date_str):
@@ -70,3 +70,4 @@ def get_countdown(mode):
         "target_date": target_date,
         "countdown": countdown,
     }
+

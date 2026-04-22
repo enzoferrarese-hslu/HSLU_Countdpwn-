@@ -13,7 +13,10 @@ Flask-App fuer einen Semester-Countdown mit Retro-UI. Die Anwendung ist fuer Doc
 ```text
 .
 |-- app.py                         # lokaler Einstiegspunkt fuer Flask
+|-- api/
+|   `-- index.py                   # Vercel-Einstiegspunkt fuer Flask
 |-- docker-compose.yml             # startet db, scraper und web
+|-- vercel.json                    # Vercel-Routing fuer die Flask-App
 |-- requirements.txt
 |-- app/
 |   |-- routes.py                  # Flask-Routen und API-Endpunkte
@@ -87,6 +90,26 @@ python app.py
 ```
 
 Dabei muss eine PostgreSQL-Datenbank erreichbar sein, passend zur `DATABASE_URL`.
+
+## Deployment mit Vercel
+
+Das Projekt ist minimal fuer Vercel vorbereitet. Vercel fuehrt die bestehende Flask-App ueber `api/index.py` als Python Function aus.
+
+Wichtig: Vercel startet keine Docker-Compose-Services. Fuer ein Deployment brauchst du deshalb eine externe PostgreSQL-Datenbank, zum Beispiel ueber einen gehosteten Postgres-Anbieter. In Vercel muss danach diese Environment Variable gesetzt werden:
+
+```text
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+```
+
+Deployment-Schritte:
+
+```bash
+vercel
+```
+
+oder ueber die Vercel-Weboberflaeche das Git-Repository importieren und die `DATABASE_URL` in den Project Settings setzen.
+
+Der Scraper laeuft auf Vercel nicht automatisch als eigener Container. Um die Datenbank zu befuellen, kann der Scraper weiterhin lokal oder per Docker gegen die externe `DATABASE_URL` ausgefuehrt werden.
 
 ## Hinweise
 

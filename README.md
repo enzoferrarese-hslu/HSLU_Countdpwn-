@@ -1,4 +1,4 @@
-# HSLU Semester Countdown
+﻿# HSLU Semester Countdown
 
 Flask-App fuer einen Semester-Countdown mit Retro-UI. Die Anwendung ist fuer Docker Compose mit drei Containern vorbereitet und in eine kleine, uebersichtliche Projektstruktur aufgeteilt.
 

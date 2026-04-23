@@ -1,8 +1,10 @@
 import re
+import unicodedata
 from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
+
 from app.database.db import init_db, replace_current_semester, wait_for_db
 
 URL = "https://www.hslu.ch/de-ch/technik-architektur/studium/bachelor/wirtschaftsingenieur-innovation/"
@@ -10,7 +12,7 @@ URL = "https://www.hslu.ch/de-ch/technik-architektur/studium/bachelor/wirtschaft
 MONTHS = {
     "januar": "01",
     "februar": "02",
-    "mÃ¤rz": "03",
+    "marz": "03",
     "april": "04",
     "mai": "05",
     "juni": "06",
@@ -28,9 +30,19 @@ def clean_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def normalize_for_matching(text: str) -> str:
+    text = clean_text(text)
+    normalized = unicodedata.normalize("NFKD", text)
+    return "".join(char for char in normalized if not unicodedata.combining(char))
+
+
+def format_semester_name(semester_name: str) -> str:
+    return semester_name.replace("Fruhlingssemester", "Frühlingssemester")
+
+
 def german_date_to_iso(date_str: str):
-    date_str = clean_text(date_str)
-    match = re.match(r"^(\d{1,2})\.\s+([A-Za-zÃ¤Ã¶Ã¼Ã„Ã–Ãœ]+)\s+(\d{4})$", date_str)
+    date_str = normalize_for_matching(date_str)
+    match = re.match(r"^(\d{1,2})\.\s+([A-Za-z]+)\s+(\d{4})$", date_str)
     if not match:
         return None
 
@@ -44,12 +56,12 @@ def german_date_to_iso(date_str: str):
 
 
 def parse_date_range(text: str):
-    text = clean_text(text)
+    text = normalize_for_matching(text)
 
     match = re.search(
-        r"(\d{1,2}\.\s+[A-Za-zÃ¤Ã¶Ã¼Ã„Ã–Ãœ]+(?:\s+\d{4})?)\s+bis\s+(\d{1,2}\.\s+[A-Za-zÃ¤Ã¶Ã¼Ã„Ã–Ãœ]+\s+\d{4})",
+        r"(\d{1,2}\.\s+[A-Za-z]+(?:\s+\d{4})?)\s+bis\s+(\d{1,2}\.\s+[A-Za-z]+\s+\d{4})",
         text,
-        re.IGNORECASE
+        re.IGNORECASE,
     )
 
     if not match:
@@ -70,18 +82,18 @@ def parse_date_range(text: str):
 
     return {
         "start": start_iso,
-        "end": end_iso
+        "end": end_iso,
     }
 
 
 def fetch_page_text():
     headers = {
-        "User-Agent": "Mozilla/5.0 (compatible; HSLU-Scraper/1.0)"
+        "User-Agent": "Mozilla/5.0 (compatible; HSLU-Scraper/1.0)",
     }
 
     response = requests.get(URL, headers=headers, timeout=30)
     response.raise_for_status()
-    response.encoding = response.apparent_encoding
+    response.encoding = response.apparent_encoding or response.encoding
 
     soup = BeautifulSoup(response.text, "html.parser")
     text = soup.get_text(" ", strip=True)
@@ -90,27 +102,28 @@ def fetch_page_text():
 
 
 def extract_semester_data(page_text: str):
+    page_text = normalize_for_matching(page_text)
     semester_pattern = re.compile(
-        r"(Herbstsemester\s+\d{4}(?:/\d{2,4})?|FrÃ¼hlingssemester\s+\d{4})(.*?)(?=(Herbstsemester\s+\d{4}(?:/\d{2,4})?|FrÃ¼hlingssemester\s+\d{4}|$))",
-        re.IGNORECASE | re.DOTALL
+        r"(Herbstsemester\s+\d{4}(?:/\d{2,4})?|Fruhlingssemester\s+\d{4})(.*?)(?=(Herbstsemester\s+\d{4}(?:/\d{2,4})?|Fruhlingssemester\s+\d{4}|$))",
+        re.IGNORECASE | re.DOTALL,
     )
 
     semesters = []
 
     for match in semester_pattern.finditer(page_text):
-        semester_name = clean_text(match.group(1))
+        semester_name = format_semester_name(clean_text(match.group(1)))
         block = clean_text(match.group(2))
 
         contact_match = re.search(
-            r"Kontaktstudium:\s*(.*?)(?=PrÃ¼fungsphase|Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
+            r"Kontaktstudium:\s*(.*?)(?=Prufungsphase|Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
             block,
-            re.IGNORECASE | re.DOTALL
+            re.IGNORECASE | re.DOTALL,
         )
 
         exam_match = re.search(
-            r"PrÃ¼fungsphase(?:\s*\([^)]*\))?:\s*(.*?)(?=Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
+            r"Prufungsphase(?:\s*\([^)]*\))?:\s*(.*?)(?=Weihnachtsferien|Osterferien|Sommerferien|Blockwochen|$)",
             block,
-            re.IGNORECASE | re.DOTALL
+            re.IGNORECASE | re.DOTALL,
         )
 
         if not contact_match or not exam_match:
@@ -122,13 +135,15 @@ def extract_semester_data(page_text: str):
         if not contact_range or not exam_range:
             continue
 
-        semesters.append({
-            "semester_name": semester_name,
-            "contact_start": contact_range["start"],
-            "contact_end": contact_range["end"],
-            "exam_start": exam_range["start"],
-            "exam_end": exam_range["end"],
-        })
+        semesters.append(
+            {
+                "semester_name": semester_name,
+                "contact_start": contact_range["start"],
+                "contact_end": contact_range["end"],
+                "exam_start": exam_range["start"],
+                "exam_end": exam_range["end"],
+            }
+        )
 
     return semesters
 
@@ -149,11 +164,12 @@ def get_current_semester(data):
 def save_to_db(semester):
     replace_current_semester(semester, URL)
 
+
 def print_current_semester(semester):
     print("\nAKTUELLES SEMESTER:\n")
     print(f"Semester: {semester['semester_name']}")
     print(f"Kontaktstudium: {semester['contact_start']} bis {semester['contact_end']}")
-    print(f"PrÃ¼fungsphase: {semester['exam_start']} bis {semester['exam_end']}")
+    print(f"Prüfungsphase: {semester['exam_start']} bis {semester['exam_end']}")
     print("-" * 50)
 
 
@@ -171,14 +187,12 @@ def main():
     semester_data = extract_semester_data(page_text)
 
     if not semester_data:
-        print("Es konnten keine Semesterdaten gefunden werden.")
-        return
+        raise RuntimeError("Es konnten keine Semesterdaten auf der HSLU-Seite gefunden werden.")
 
     current_semester = get_current_semester(semester_data)
 
     if not current_semester:
-        print("Kein aktuelles Semester gefunden.")
-        return
+        raise RuntimeError("Es wurde kein aktuelles Semester auf der HSLU-Seite gefunden.")
 
     print("Speichere aktuelles Semester in PostgreSQL...")
     save_to_db(current_semester)
@@ -189,4 +203,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

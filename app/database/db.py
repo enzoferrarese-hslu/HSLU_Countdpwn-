@@ -168,6 +168,8 @@ def upsert_semesters(semesters):
 def mirror_semesters_to_sqlite(semesters):
     sqlite_path = get_sqlite_mirror_path()
     sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+    if sqlite_path.exists():
+        sqlite_path.unlink()
 
     with sqlite3.connect(sqlite_path) as conn:
         conn.execute(
@@ -185,7 +187,6 @@ def mirror_semesters_to_sqlite(semesters):
             )
             """
         )
-        conn.execute("DELETE FROM semester_dates")
 
         rows = []
         for semester in semesters:

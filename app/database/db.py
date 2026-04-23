@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 import psycopg
 from psycopg.rows import dict_row
 
+from app.scraper.common import TECHNIK_ARCHITEKTUR
+
 
 DEFAULT_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/semester_countdown"
 
@@ -44,7 +46,8 @@ def init_db():
             """
             CREATE TABLE IF NOT EXISTS semester_dates (
                 id SERIAL PRIMARY KEY,
-                semester_name TEXT NOT NULL UNIQUE,
+                department_name TEXT,
+                semester_name TEXT NOT NULL,
                 contact_start DATE NOT NULL,
                 contact_end DATE NOT NULL,
                 exam_start DATE NOT NULL,
@@ -54,58 +57,102 @@ def init_db():
             )
             """
         )
+        conn.execute("ALTER TABLE semester_dates ADD COLUMN IF NOT EXISTS department_name TEXT")
+        conn.execute(
+            """
+            UPDATE semester_dates
+            SET department_name = %s
+            WHERE department_name IS NULL
+            """,
+            (TECHNIK_ARCHITEKTUR,),
+        )
+        conn.execute("ALTER TABLE semester_dates ALTER COLUMN department_name SET NOT NULL")
+        conn.execute("ALTER TABLE semester_dates DROP CONSTRAINT IF EXISTS semester_dates_semester_name_key")
+        conn.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS semester_dates_department_semester_idx
+            ON semester_dates (department_name, semester_name)
+            """
+        )
         conn.commit()
 
 
-def fetch_current_semester():
+def fetch_current_semester(department_name=TECHNIK_ARCHITEKTUR):
     with get_connection() as conn:
         row = conn.execute(
             """
-            SELECT semester_name, contact_start, contact_end, exam_start, exam_end
+            SELECT department_name, semester_name, contact_start, contact_end, exam_start, exam_end, source_url
             FROM semester_dates
-            ORDER BY scraped_at DESC
+            WHERE department_name = %s
+              AND contact_start <= CURRENT_DATE
+              AND exam_end >= CURRENT_DATE
+            ORDER BY contact_start DESC, scraped_at DESC
             LIMIT 1
-            """
+            """,
+            (department_name,),
         ).fetchone()
+
+        if row is None:
+            row = conn.execute(
+                """
+                SELECT department_name, semester_name, contact_start, contact_end, exam_start, exam_end, source_url
+                FROM semester_dates
+                WHERE department_name = %s
+                ORDER BY exam_end DESC, scraped_at DESC
+                LIMIT 1
+                """,
+                (department_name,),
+            ).fetchone()
 
     if row is None:
         return None
 
     return {
+        "department_name": row["department_name"],
         "semester_name": row["semester_name"],
         "contact_start": row["contact_start"].isoformat(),
         "contact_end": row["contact_end"].isoformat(),
         "exam_start": row["exam_start"].isoformat(),
         "exam_end": row["exam_end"].isoformat(),
+        "source_url": row["source_url"],
     }
 
 
-def replace_current_semester(semester, source_url):
-    scraped_at = datetime.now(timezone.utc)
-
+def upsert_semesters(semesters):
     with get_connection() as conn:
         with conn.transaction():
-            conn.execute("DELETE FROM semester_dates")
-            conn.execute(
-                """
-                INSERT INTO semester_dates (
-                    semester_name,
-                    contact_start,
-                    contact_end,
-                    exam_start,
-                    exam_end,
-                    source_url,
-                    scraped_at
+            for semester in semesters:
+                scraped_at = datetime.now(timezone.utc)
+                conn.execute(
+                    """
+                    INSERT INTO semester_dates (
+                        department_name,
+                        semester_name,
+                        contact_start,
+                        contact_end,
+                        exam_start,
+                        exam_end,
+                        source_url,
+                        scraped_at
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (department_name, semester_name)
+                    DO UPDATE SET
+                        contact_start = EXCLUDED.contact_start,
+                        contact_end = EXCLUDED.contact_end,
+                        exam_start = EXCLUDED.exam_start,
+                        exam_end = EXCLUDED.exam_end,
+                        source_url = EXCLUDED.source_url,
+                        scraped_at = EXCLUDED.scraped_at
+                    """,
+                    (
+                        semester["department_name"],
+                        semester["semester_name"],
+                        semester["contact_start"],
+                        semester["contact_end"],
+                        semester["exam_start"],
+                        semester["exam_end"],
+                        semester["source_url"],
+                        scraped_at,
+                    ),
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    semester["semester_name"],
-                    semester["contact_start"],
-                    semester["contact_end"],
-                    semester["exam_start"],
-                    semester["exam_end"],
-                    source_url,
-                    scraped_at,
-                ),
-            )

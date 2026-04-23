@@ -5,7 +5,7 @@ Flask-App fuer einen Semester-Countdown mit Retro-UI. Die Anwendung ist fuer Doc
 ## Architektur
 
 - `db`: PostgreSQL-Datenbank fuer die Semesterdaten
-- `scraper`: Python/BeautifulSoup-Scraper, der einmal startet und das aktuelle Semester speichert
+- `scraper`: Python-Scraper-Service, der mehrere HSLU-Quellen verarbeitet und Semesterdaten speichert
 - `web`: Flask-Webservice, der Startseite, Countdown-Seite und API ausliefert
 
 ## Projektstruktur
@@ -25,7 +25,11 @@ Flask-App fuer einen Semester-Countdown mit Retro-UI. Die Anwendung ist fuer Doc
 |   |-- services/
 |   |   `-- countdown_service.py   # Countdown-Logik und get_countdown(mode)
 |   |-- scraper/
-|   |   `-- bf_code_for_db.py      # BeautifulSoup-Scraper
+|   |   |-- bf_code_for_db.py      # kompatibler Einstiegspunkt fuer den Scraper-Container
+|   |   |-- common.py              # gemeinsames Datenformat und Parsing-Helfer
+|   |   |-- technik_architektur.py # HTML-Scraper fuer Technik & Architektur
+|   |   |-- wirtschaft_pdf.py      # PDF-Scraper fuer Wirtschaft
+|   |   `-- run_all.py             # fuehrt alle Scraper nacheinander aus
 |   |-- static/                    # bestehendes Frontend-CSS/JS
 |   `-- templates/                 # bestehende HTML-Templates
 |-- docker/
@@ -50,7 +54,12 @@ Danach ist die App erreichbar unter:
 http://localhost:5000
 ```
 
-Der Scraper-Container laeuft beim Start einmal, liest die HSLU-Seite und schreibt das aktuelle Semester in PostgreSQL. Der Webservice liest aus PostgreSQL und liefert weiterhin dieselben Routen aus.
+Der Scraper-Container laeuft beim Start einmal, verarbeitet aktuell:
+
+- `Technik & Architektur` ueber den bestehenden HTML-Scraper
+- `Wirtschaft` ueber einen PDF-Scraper
+
+Beide liefern dieselbe Datenstruktur und werden gemeinsam in PostgreSQL gespeichert. Der Webservice liest standardmaessig weiterhin `Technik & Architektur` aus und liefert dieselben Routen aus.
 
 ## Wichtige Routen
 
@@ -61,6 +70,14 @@ GET /countdown/exam
 GET /api/countdown/contact
 GET /api/countdown/exam
 ```
+
+Optional akzeptiert die API bereits einen Query-Parameter fuer das Department:
+
+```text
+GET /api/countdown/contact?department=Wirtschaft
+```
+
+Ohne Parameter bleibt das Verhalten unveraendert und nutzt `Technik & Architektur`.
 
 ## Konfiguration
 
@@ -111,9 +128,20 @@ oder ueber die Vercel-Weboberflaeche das Git-Repository importieren und die `DAT
 
 Der Scraper laeuft auf Vercel nicht automatisch als eigener Container. Um die Datenbank zu befuellen, kann der Scraper weiterhin lokal oder per Docker gegen die externe `DATABASE_URL` ausgefuehrt werden.
 
+## Railway-Hinweis
+
+Fuer Railway bleibt die Architektur dockerfreundlich:
+
+- `web` nutzt `docker/Dockerfile.web`
+- `scraper` nutzt `docker/Dockerfile.scraper`
+- die PostgreSQL-URL kommt ueber `DATABASE_URL`
+
+Wenn mehrere Departments aktuell gehalten werden sollen, sollte der Railway-Scraper regelmaessig als Job oder per Redeploy laufen.
+
 ## Hinweise
 
 - Das Frontend wurde bei der Umstrukturierung nur verschoben, nicht neu gestaltet.
+- Das Frontend wurde fuer die Multi-Department-Erweiterung nicht angepasst.
 - Die fruehere SQLite-Datei liegt unter `data/` und wird im Docker-Setup nicht mehr verwendet.
 - PostgreSQL-Daten bleiben im Docker-Volume `postgres_data` erhalten.
 - Falls beim ersten Laden noch keine Daten vorhanden sind, kurz warten oder den Scraper manuell erneut starten.

@@ -1,24 +1,25 @@
 from datetime import datetime
 
 from app.database.db import fetch_current_semester
+from app.scraper.common import TECHNIK_ARCHITEKTUR
 
 
-def get_current_semester():
-    return fetch_current_semester()
+def get_current_semester(department_name=TECHNIK_ARCHITEKTUR):
+    return fetch_current_semester(department_name)
 
 
-def get_target_date(mode):
-    semester = get_current_semester()
+def get_target_date(mode, department_name=TECHNIK_ARCHITEKTUR):
+    semester = get_current_semester(department_name)
 
     if semester is None:
         raise ValueError("Keine Semesterdaten in der Datenbank gefunden.")
 
     if mode == "contact":
         return semester["contact_end"]
-    elif mode == "exam":
+    if mode == "exam":
         return semester["exam_end"]
-    else:
-        raise ValueError("UngÃ¼ltiger Modus. Verwende 'contact' oder 'exam'.")
+
+    raise ValueError("Ungültiger Modus. Verwende 'contact' oder 'exam'.")
 
 
 def calculate_countdown(target_date_str):
@@ -55,19 +56,19 @@ def calculate_countdown(target_date_str):
     }
 
 
-def get_countdown(mode):
-    semester = get_current_semester()
+def get_countdown(mode, department_name=TECHNIK_ARCHITEKTUR):
+    semester = get_current_semester(department_name)
 
     if semester is None:
         raise ValueError("Keine aktuellen Semesterdaten in der Datenbank gefunden.")
 
-    target_date = get_target_date(mode)
+    target_date = get_target_date(mode, department_name)
     countdown = calculate_countdown(target_date)
 
     return {
+        "department_name": semester["department_name"],
         "semester_name": semester["semester_name"],
         "mode": mode,
         "target_date": target_date,
         "countdown": countdown,
     }
-

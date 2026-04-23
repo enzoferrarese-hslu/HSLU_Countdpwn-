@@ -6,7 +6,7 @@
     <title>HSLU Countdown</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body data-mode="{{ mode }}">
+<body data-mode="{{ mode }}" data-department="{{ department_name or 'Technik & Architektur' }}">
     <main class="screen countdown-page">
         <section class="terminal-panel terminal-panel-wide settings-host" aria-live="polite">
             <button id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
@@ -17,7 +17,7 @@
             </button>
 
             <div class="top-bar">
-                <a href="{{ url_for('home') }}" class="back-button" aria-label="Zur Startseite">
+                <a href="{{ url_for('home') }}" class="back-button" id="home-link" aria-label="Zur Startseite">
                     <span class="arrow"></span>
                 </a>
                 <div class="top-actions">

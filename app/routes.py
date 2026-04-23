@@ -27,9 +27,11 @@ def home():
 
 @app.route("/countdown/<mode>")
 def countdown_page(mode):
+    department_name = request.args.get("department", TECHNIK_ARCHITEKTUR)
+
     if mode not in ["contact", "exam"]:
         return "Ungültiger Modus", 400
-    return render_template("countdown.html", mode=mode)
+    return render_template("countdown.html", mode=mode, department_name=department_name)
 
 
 @app.route("/api/countdown/<mode>")

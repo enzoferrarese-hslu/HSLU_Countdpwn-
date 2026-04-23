@@ -2,11 +2,17 @@ let countdownInterval = null;
 let currentSeconds = 0;
 let currentUnit = "seconds";
 let currentMode = null;
+let currentDepartment = "Technik & Architektur";
 let countdownLoaded = false;
+const SUPPORTED_DEPARTMENTS = ["Technik & Architektur", "Wirtschaft"];
 
 document.addEventListener("DOMContentLoaded", () => {
     const body = document.body;
     const mode = body.dataset.mode;
+    const bodyDepartment = body.dataset.department;
+
+    currentDepartment = getInitialDepartment(bodyDepartment);
+    document.body.dataset.department = currentDepartment;
 
     if (mode) {
         if (!["contact", "exam"].includes(mode)) {
@@ -28,6 +34,8 @@ function initSettings() {
 
     applyTheme(savedTheme);
     setCountdownUnit(currentUnit);
+    syncDepartmentLinks();
+    setActiveCampus(currentDepartment);
 
     const settingsToggle = document.getElementById("settings-toggle");
     const settingsClose = document.getElementById("settings-close");
@@ -47,12 +55,14 @@ function initSettings() {
 
     document.querySelectorAll(".campus-option").forEach(button => {
         button.addEventListener("click", () => {
-            if (button.dataset.campus === "Technik & Architektur") {
-                window.location.href = "/";
+            const campus = button.dataset.campus;
+
+            if (SUPPORTED_DEPARTMENTS.includes(campus)) {
+                setDepartment(campus);
                 return;
             }
 
-            showComingSoon(button.dataset.campus);
+            showComingSoon(campus);
         });
     });
 
@@ -80,7 +90,7 @@ function initSettings() {
 function startCountdown(mode) {
     currentMode = mode;
 
-    fetch(`/api/countdown/${mode}`)
+    fetch(buildDepartmentUrl(`/api/countdown/${mode}`))
         .then(response => {
             if (!response.ok) {
                 throw new Error(`API nicht erreichbar (Status ${response.status}).`);
@@ -116,7 +126,7 @@ function startCountdown(mode) {
             }
 
             document.getElementById("status-text").textContent =
-                `${data.semester_name} aus SQLite geladen`;
+                `${data.department_name} · ${data.semester_name} aus SQLite geladen`;
 
             currentSeconds = data.countdown.total_seconds;
             countdownLoaded = true;
@@ -330,6 +340,53 @@ function applyTheme(theme) {
     const selectedTheme = theme || "green";
     document.body.dataset.theme = selectedTheme;
     setActiveOption(".color-option", "theme", selectedTheme);
+}
+
+function setDepartment(department) {
+    currentDepartment = department;
+    setStoredValue("countdownDepartment", department);
+    document.body.dataset.department = department;
+    setActiveCampus(department);
+    syncDepartmentLinks();
+
+    if (currentMode) {
+        window.location.href = buildDepartmentUrl(`/countdown/${currentMode}`);
+        return;
+    }
+
+    window.location.href = buildDepartmentUrl("/");
+}
+
+function getInitialDepartment(bodyDepartment) {
+    const storedDepartment = getStoredValue("countdownDepartment", "");
+    const department = bodyDepartment || storedDepartment || "Technik & Architektur";
+    return SUPPORTED_DEPARTMENTS.includes(department) ? department : "Technik & Architektur";
+}
+
+function setActiveCampus(department) {
+    setActiveOption(".campus-option", "campus", department);
+}
+
+function syncDepartmentLinks() {
+    document.querySelectorAll(".countdown-link").forEach(link => {
+        const mode = link.dataset.mode;
+        if (!mode) {
+            return;
+        }
+
+        link.href = buildDepartmentUrl(`/countdown/${mode}`);
+    });
+
+    const homeLink = document.getElementById("home-link");
+    if (homeLink) {
+        homeLink.href = buildDepartmentUrl("/");
+    }
+}
+
+function buildDepartmentUrl(path) {
+    const url = new URL(path, window.location.origin);
+    url.searchParams.set("department", currentDepartment);
+    return `${url.pathname}${url.search}`;
 }
 
 function setActiveOption(selector, dataKey, value) {

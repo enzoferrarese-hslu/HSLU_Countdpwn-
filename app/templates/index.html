@@ -6,7 +6,7 @@
     <title>HSLU Semester Countdown</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body data-department="{{ semester.department_name if semester and semester.department_name else 'Technik & Architektur' }}">
     <main class="screen start-page">
         <section class="terminal-panel settings-host" aria-labelledby="page-title">
             <button id="settings-toggle" type="button" aria-label="Einstellungen öffnen" aria-expanded="false">
@@ -34,11 +34,11 @@
             </div>
 
             <nav class="button-group" aria-label="Countdown auswählen">
-                <a href="{{ url_for('countdown_page', mode='contact') }}" class="menu-button">
+                <a href="{{ url_for('countdown_page', mode='contact') }}" class="menu-button countdown-link" data-mode="contact">
                     <span>01</span>
                     Kontaktstudium
                 </a>
-                <a href="{{ url_for('countdown_page', mode='exam') }}" class="menu-button">
+                <a href="{{ url_for('countdown_page', mode='exam') }}" class="menu-button countdown-link" data-mode="exam">
                     <span>02</span>
                     Prüfungsphase
                 </a>

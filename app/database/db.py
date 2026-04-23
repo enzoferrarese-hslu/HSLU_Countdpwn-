@@ -125,9 +125,16 @@ def fetch_current_semester(department_name=TECHNIK_ARCHITEKTUR):
     }
 
 
-def upsert_semesters(semesters):
+def replace_current_semesters(semesters):
     with get_connection() as conn:
         with conn.transaction():
+            departments = sorted({semester["department_name"] for semester in semesters})
+            for department_name in departments:
+                conn.execute(
+                    "DELETE FROM semester_dates WHERE department_name = %s",
+                    (department_name,),
+                )
+
             for semester in semesters:
                 scraped_at = datetime.now(timezone.utc)
                 conn.execute(
@@ -143,14 +150,6 @@ def upsert_semesters(semesters):
                         scraped_at
                     )
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (department_name, semester_name)
-                    DO UPDATE SET
-                        contact_start = EXCLUDED.contact_start,
-                        contact_end = EXCLUDED.contact_end,
-                        exam_start = EXCLUDED.exam_start,
-                        exam_end = EXCLUDED.exam_end,
-                        source_url = EXCLUDED.source_url,
-                        scraped_at = EXCLUDED.scraped_at
                     """,
                     (
                         semester["department_name"],

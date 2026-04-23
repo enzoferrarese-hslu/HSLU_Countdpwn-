@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from app.database.db import init_db, mirror_semesters_to_sqlite, upsert_semesters, wait_for_db
+from app.database.db import init_db, mirror_semesters_to_sqlite, replace_current_semesters, wait_for_db
 from app.scraper.common import find_current_semester
 from app.scraper.technik_architektur import scrape_semesters as scrape_technik_architektur
 from app.scraper.wirtschaft_pdf import scrape_semesters as scrape_wirtschaft
@@ -19,7 +19,7 @@ def main():
     print("Initialisiere Datenbank...")
     init_db()
 
-    all_semesters = []
+    current_semesters = []
     errors = []
 
     for label, scraper in SCRAPERS:
@@ -28,23 +28,32 @@ def main():
             semesters = scraper()
             if not semesters:
                 raise RuntimeError(f"Keine Semesterdaten fuer {label} gefunden.")
-            all_semesters.extend(semesters)
             print(f"{label}: {len(semesters)} Semester gefunden.")
+
+            current_semester = find_current_semester(semesters)
+            if not current_semester:
+                raise RuntimeError(f"Kein aktuelles Semester fuer {label} gefunden.")
+
+            current_semesters.append(current_semester)
+            print(
+                f"{label}: aktuelles Semester {current_semester['semester_name']} "
+                f"({current_semester['contact_start']} bis {current_semester['exam_end']})"
+            )
         except Exception as error:
             errors.append((label, error))
             print(f"Warnung: {label} konnte nicht gescrapt werden: {error}")
 
-    if not all_semesters:
+    if not current_semesters:
         raise RuntimeError("Kein Scraper konnte Semesterdaten liefern.")
 
-    print("Speichere Semesterdaten in PostgreSQL...")
-    upsert_semesters(all_semesters)
+    print("Speichere aktuelle Semesterdaten in PostgreSQL...")
+    replace_current_semesters(current_semesters)
 
     print("Aktualisiere lokalen SQLite-Spiegel...")
-    mirror_semesters_to_sqlite(all_semesters)
+    mirror_semesters_to_sqlite(current_semesters)
 
     by_department = defaultdict(list)
-    for semester in all_semesters:
+    for semester in current_semesters:
         by_department[semester["department_name"]].append(semester)
 
     for department_name, semesters in by_department.items():

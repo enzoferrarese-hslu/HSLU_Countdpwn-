@@ -19,6 +19,8 @@ services:
       dockerfile: docker/Dockerfile.scraper
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/semester_countdown
+    volumes:
+      - ./data:/app/data
     depends_on:
       db:
         condition: service_healthy

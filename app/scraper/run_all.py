@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from app.database.db import init_db, upsert_semesters, wait_for_db
+from app.database.db import init_db, mirror_semesters_to_sqlite, upsert_semesters, wait_for_db
 from app.scraper.common import find_current_semester
 from app.scraper.technik_architektur import scrape_semesters as scrape_technik_architektur
 from app.scraper.wirtschaft_pdf import scrape_semesters as scrape_wirtschaft
@@ -39,6 +39,9 @@ def main():
 
     print("Speichere Semesterdaten in PostgreSQL...")
     upsert_semesters(all_semesters)
+
+    print("Aktualisiere lokalen SQLite-Spiegel...")
+    mirror_semesters_to_sqlite(all_semesters)
 
     by_department = defaultdict(list)
     for semester in all_semesters:

@@ -1,7 +1,9 @@
 import os
+import sqlite3
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 
 import psycopg
 from psycopg.rows import dict_row
@@ -10,10 +12,15 @@ from app.scraper.common import TECHNIK_ARCHITEKTUR
 
 
 DEFAULT_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/semester_countdown"
+DEFAULT_SQLITE_MIRROR_PATH = Path(__file__).resolve().parents[2] / "data" / "semester_dates.db"
 
 
 def get_database_url():
     return os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL)
+
+
+def get_sqlite_mirror_path():
+    return Path(os.environ.get("SQLITE_MIRROR_PATH", str(DEFAULT_SQLITE_MIRROR_PATH)))
 
 
 @contextmanager
@@ -156,3 +163,59 @@ def upsert_semesters(semesters):
                         scraped_at,
                     ),
                 )
+
+
+def mirror_semesters_to_sqlite(semesters):
+    sqlite_path = get_sqlite_mirror_path()
+    sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(sqlite_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS semester_dates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                department_name TEXT NOT NULL,
+                semester_name TEXT NOT NULL,
+                contact_start TEXT NOT NULL,
+                contact_end TEXT NOT NULL,
+                exam_start TEXT NOT NULL,
+                exam_end TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                scraped_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute("DELETE FROM semester_dates")
+
+        rows = []
+        for semester in semesters:
+            rows.append(
+                (
+                    semester["department_name"],
+                    semester["semester_name"],
+                    semester["contact_start"],
+                    semester["contact_end"],
+                    semester["exam_start"],
+                    semester["exam_end"],
+                    semester["source_url"],
+                    datetime.now(timezone.utc).isoformat(),
+                )
+            )
+
+        conn.executemany(
+            """
+            INSERT INTO semester_dates (
+                department_name,
+                semester_name,
+                contact_start,
+                contact_end,
+                exam_start,
+                exam_end,
+                source_url,
+                scraped_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            rows,
+        )
+        conn.commit()

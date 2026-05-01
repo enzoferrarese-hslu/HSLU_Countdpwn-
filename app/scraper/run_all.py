@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from app.database.db import init_db, mirror_semesters_to_sqlite, replace_current_semesters, wait_for_db
-from app.scraper.common import find_current_semester
+from app.scraper.common import find_relevant_semester
 from app.scraper.informatik import scrape_semesters as scrape_informatik
 from app.scraper.technik_architektur import scrape_semesters as scrape_technik_architektur
 from app.scraper.wirtschaft_pdf import scrape_semesters as scrape_wirtschaft
@@ -32,13 +32,13 @@ def main():
                 raise RuntimeError(f"Keine Semesterdaten fuer {label} gefunden.")
             print(f"{label}: {len(semesters)} Semester gefunden.")
 
-            current_semester = find_current_semester(semesters)
+            current_semester = find_relevant_semester(semesters)
             if not current_semester:
-                raise RuntimeError(f"Kein aktuelles Semester fuer {label} gefunden.")
+                raise RuntimeError(f"Kein relevantes Semester fuer {label} gefunden.")
 
             current_semesters.append(current_semester)
             print(
-                f"{label}: aktuelles Semester {current_semester['semester_name']} "
+                f"{label}: relevantes Semester {current_semester['semester_name']} "
                 f"({current_semester['contact_start']} bis {current_semester['exam_end']})"
             )
         except Exception as error:
@@ -59,14 +59,14 @@ def main():
         by_department[semester["department_name"]].append(semester)
 
     for department_name, semesters in by_department.items():
-        current = find_current_semester(semesters)
+        current = find_relevant_semester(semesters)
         if current:
             print(
-                f"{department_name}: aktuelles Semester {current['semester_name']} "
+                f"{department_name}: relevantes Semester {current['semester_name']} "
                 f"({current['contact_start']} bis {current['exam_end']})"
             )
         else:
-            print(f"{department_name}: kein aktuelles Semester im gescrapten Datensatz gefunden.")
+            print(f"{department_name}: kein relevantes Semester im gescrapten Datensatz gefunden.")
 
     if errors:
         print("Scraperlauf mit Warnungen abgeschlossen:")

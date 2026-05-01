@@ -137,7 +137,23 @@ Fuer Railway bleibt die Architektur dockerfreundlich:
 - `scraper` nutzt `docker/Dockerfile.scraper`
 - die PostgreSQL-URL kommt ueber `DATABASE_URL`
 
-Wenn mehrere Departments aktuell gehalten werden sollen, sollte der Railway-Scraper regelmaessig als Job oder per Redeploy laufen.
+Wenn mehrere Departments aktuell gehalten werden sollen, sollte der Railway-Scraper als Cron Job laufen. Railway startet Cron-Services laut offizieller Doku zum konfigurierten Zeitpunkt, fuehrt den Start-Command aus und erwartet danach ein sauberes Beenden des Prozesses. Genau dafuer ist der bestehende Scraper-Runner geeignet.
+
+Empfohlene Railway-Cron-Konfiguration:
+
+```text
+0 0 1 * *
+```
+
+Das bedeutet: einmal pro Monat am 1. Tag um 00:00 UTC.
+
+Wichtig fuer den Semesterwechsel:
+
+- Der Scraper speichert nicht mehr blind nur das gerade aktive Semester.
+- Wenn kein aktives Semester gefunden wird, waehlt das Backend automatisch das naechste bevorstehende Semester.
+- Falls es weder ein aktives noch ein kommendes Semester gibt, faellt es erst danach auf das zuletzt vergangene Semester zurueck.
+
+Damit aktualisiert sich der gespeicherte Datensatz auch dann sinnvoll, wenn zwischen zwei Semestern gerade keine aktive Unterrichtsphase laeuft.
 
 ## Hinweise
 

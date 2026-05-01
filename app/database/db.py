@@ -105,6 +105,19 @@ def fetch_current_semester(department_name=TECHNIK_ARCHITEKTUR):
                 SELECT department_name, semester_name, contact_start, contact_end, exam_start, exam_end, source_url
                 FROM semester_dates
                 WHERE department_name = %s
+                  AND contact_start > CURRENT_DATE
+                ORDER BY contact_start ASC, scraped_at DESC
+                LIMIT 1
+                """,
+                (department_name,),
+            ).fetchone()
+
+        if row is None:
+            row = conn.execute(
+                """
+                SELECT department_name, semester_name, contact_start, contact_end, exam_start, exam_end, source_url
+                FROM semester_dates
+                WHERE department_name = %s
                 ORDER BY exam_end DESC, scraped_at DESC
                 LIMIT 1
                 """,

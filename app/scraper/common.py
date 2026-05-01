@@ -133,3 +133,33 @@ def find_current_semester(semesters, today: date | None = None):
             return semester
 
     return None
+
+
+def find_relevant_semester(semesters, today: date | None = None):
+    today = today or datetime.now().date()
+
+    current_semester = find_current_semester(semesters, today)
+    if current_semester:
+        return current_semester
+
+    upcoming_semesters = []
+    past_semesters = []
+
+    for semester in semesters:
+        contact_start = datetime.fromisoformat(semester["contact_start"]).date()
+        exam_end = datetime.fromisoformat(semester["exam_end"]).date()
+
+        if contact_start > today:
+            upcoming_semesters.append((contact_start, semester))
+        else:
+            past_semesters.append((exam_end, semester))
+
+    if upcoming_semesters:
+        upcoming_semesters.sort(key=lambda item: item[0])
+        return upcoming_semesters[0][1]
+
+    if past_semesters:
+        past_semesters.sort(key=lambda item: item[0], reverse=True)
+        return past_semesters[0][1]
+
+    return None

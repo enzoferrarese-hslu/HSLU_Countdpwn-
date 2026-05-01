@@ -4,7 +4,7 @@ let currentUnit = "seconds";
 let currentMode = null;
 let currentDepartment = "Technik & Architektur";
 let countdownLoaded = false;
-const SUPPORTED_DEPARTMENTS = ["Technik & Architektur", "Wirtschaft"];
+const SUPPORTED_DEPARTMENTS = ["Technik & Architektur", "Wirtschaft", "Informatik"];
 
 document.addEventListener("DOMContentLoaded", () => {
     const body = document.body;

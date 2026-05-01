@@ -5,6 +5,7 @@ from datetime import date, datetime
 
 TECHNIK_ARCHITEKTUR = "Technik & Architektur"
 WIRTSCHAFT = "Wirtschaft"
+INFORMATIK = "Informatik"
 
 MONTHS = {
     "januar": "01",

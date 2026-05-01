@@ -58,6 +58,7 @@ Der Scraper-Container laeuft beim Start einmal, verarbeitet aktuell:
 
 - `Technik & Architektur` ueber den bestehenden HTML-Scraper
 - `Wirtschaft` ueber einen PDF-Scraper
+- `Informatik` ueber einen HTML-Scraper
 
 Beide liefern dieselbe Datenstruktur und werden gemeinsam in PostgreSQL gespeichert. Der Webservice liest standardmaessig weiterhin `Technik & Architektur` aus und liefert dieselben Routen aus.
 

@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from app.database.db import init_db, mirror_semesters_to_sqlite, replace_current_semesters, wait_for_db
 from app.scraper.common import find_current_semester
+from app.scraper.informatik import scrape_semesters as scrape_informatik
 from app.scraper.technik_architektur import scrape_semesters as scrape_technik_architektur
 from app.scraper.wirtschaft_pdf import scrape_semesters as scrape_wirtschaft
 
@@ -9,6 +10,7 @@ from app.scraper.wirtschaft_pdf import scrape_semesters as scrape_wirtschaft
 SCRAPERS = [
     ("Technik & Architektur", scrape_technik_architektur),
     ("Wirtschaft", scrape_wirtschaft),
+    ("Informatik", scrape_informatik),
 ]
 
 
